@@ -3,14 +3,7 @@ ENV FLASK_RUN_HOST=0.0.0.0
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-  gcc \
-  libpcre3 \
-  libpcre3-dev \
-  build-essential \
-  && rm -rf /var/lib/apt/lists/*
-
-RUN pip install pipenv
+RUN pip install pipenv gunicorn
 
 COPY Pipfile* ./
 RUN pipenv install --system --ignore-pipfile
@@ -19,4 +12,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD uwsgi --http :5000 --master --enable-threads --mount /=app:app --manage-script-name
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "--chdir", "/app", "wsgi:app"]
